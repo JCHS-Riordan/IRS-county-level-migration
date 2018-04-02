@@ -344,6 +344,8 @@ function focusMetro(GEOID, name) {
   
   var new_data = []
   
+  selected_flow = selected_flow === 'Netflows' ? 'Inflows' : selected_flow
+  
   if (flow_data[selected_flow + selected_year]) {
 
     flow_data[selected_flow + selected_year].forEach(function (el, idx) {
