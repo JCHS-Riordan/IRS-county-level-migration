@@ -4,6 +4,15 @@
   margin: 0px auto; 
 }
 
+h2 {
+  text-align: center;
+  color: #C14D00;
+  font-family: "Lucida Grande", "Lucida Sans Unicode", sans-serif;
+  font-size: 20px;
+  margin: 0px;
+  /*font-weight: normal;*/
+}
+
 table {
   width: 800px;
   margin: auto;
