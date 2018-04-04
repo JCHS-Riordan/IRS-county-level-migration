@@ -344,6 +344,14 @@ function focusMetro(GEOID, name) {
   
   var new_data = []
   
+  if (selected_flow === 'Netflows') {
+    selected_flow = 'Inflows'
+    $('.flowButton').removeClass('selectedButton')
+    $('#inflow_button').addClass('selectedButton')
+  }
+  
+  
+  
   if (flow_data[selected_flow + selected_year]) {
 
     flow_data[selected_flow + selected_year].forEach(function (el, idx) {
@@ -440,6 +448,9 @@ $('#select_year').change(function () {
 $('#inflow_button').click(function () {
   selected_flow = 'Inflows'
   
+  $('.flowButton').removeClass('selectedButton')
+  $(this).addClass('selectedButton')
+  
   var flow_load_result = getFlowData()
   
   if (selected_metro !== '' & flow_load_result === 'data already loaded') {
@@ -451,7 +462,10 @@ $('#inflow_button').click(function () {
 
 $('#outflow_button').click(function () {
   selected_flow = 'Outflows'
-
+  
+  $('.flowButton').removeClass('selectedButton')
+  $(this).addClass('selectedButton')
+  
   var flow_load_result = getFlowData()
   
   console.log(flow_load_result)
@@ -465,6 +479,10 @@ $('#outflow_button').click(function () {
 
 $('#netflow_button').click(function () {
   selected_flow = 'Netflows'
+  
+  $('.flowButton').removeClass('selectedButton')
+  $(this).addClass('selectedButton')
+  
   selected_metro = ''
   netflowMap()
   $('#clear_button').remove()
