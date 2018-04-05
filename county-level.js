@@ -6,15 +6,15 @@ https://api.highcharts.com/highmaps/
 
 
 /*~~~~~ Load external shapefiles and JCHS logo ~~~~~~*/
-counties = Highcharts.geojson(Highcharts.maps["countries/us/us-all-all"])
+counties = Highcharts.geojson(Highcharts.maps["countries/us/us-all-all-highres"])
 //counties = Highcharts.maps["countries/us/counties"]
-states = Highcharts.geojson(Highcharts.maps["countries/us/us-all-all"], 'mapline')
+states = Highcharts.geojson(Highcharts.maps["countries/us/us-all-all-highres"], 'mapline')
 logoURL =
   "http://www.jchs.harvard.edu/sites/jchs.harvard.edu/files/harvard_jchs_logo_2017.png"
 
 Sheet_IDs = {
   SheetID_2016: "1gmnrLqkwLr8S4E29utBisi1_4glZRnSrLkFO1uxOU-k",
-  SheetID_2015: "16CUXS0J0o29tOUyfr5Hx5EDgDN-r_ymFzRrnyfB5SLo",
+  //SheetID_2015: "16CUXS0J0o29tOUyfr5Hx5EDgDN-r_ymFzRrnyfB5SLo",
   SheetID_2014: "1l2WHtO7QxajpsfLla3gxUIWCVhM1qRle17O0uDi5yns",
   SheetID_2013: "1YUODMFwBAd8Mgwk5EDuW4mrGs9ibikfuLsgEHw99JN4",
   SheetID_2012: "1ldHf4OIdJbWvtL9hiGgUZUc8BaGPVsjFTDN1vYtqH5c",
@@ -105,6 +105,8 @@ $(document).ready(function() {
   createMap()
   getFlowData()
   
+
+  
   var SheetID = Sheet_IDs['SheetID_Netflow']
   var range = 'Netflows!A:C'
 
@@ -122,6 +124,7 @@ $(document).ready(function() {
 
     flow_data['Netflows'] = obj.values
     
+    selected_flow = 'Netflows'
   })
 })
 
@@ -199,13 +202,11 @@ function createMap() {
       //main title of chart
       title: {
         text:
-        'County-level Domestic Migration<br/><span style="font-size: 15px">' +
-        'Net Flow Returns' +
-        "</span>",
+        'Net Flows, ' + selected_year,
         style: {
           color: "#C14D00",
           fontWeight: 600,
-          fontSize: "19px"
+          fontSize: "18px"
         }
       },
 
@@ -351,9 +352,6 @@ function focusMetro(GEOID, name) {
   }
   
   
-  
-  if (flow_data[selected_flow + selected_year]) {
-
     flow_data[selected_flow + selected_year].forEach(function (el, idx) {
       if (el[0] == GEOID) {
         new_data.push([el[1], el[2]])
@@ -363,7 +361,7 @@ function focusMetro(GEOID, name) {
     if (new_data.length > 0) {
 
       map.series[0].setData(new_data)
-      map.update({title: {text: name + ' County<br/>' + selected_flow + ' ' + selected_year}})
+      map.update({title: {text: name + ' County<br/>' + selected_flow + ', ' + selected_year}})
       map.update({
         legend: {
           title: {
@@ -400,7 +398,6 @@ function focusMetro(GEOID, name) {
       }, 1300)
     }
 
-  }
 
   //re-select selected county
   map.series[0].data.forEach(function(pt) {
@@ -536,7 +533,7 @@ function getFlowData() {
 function resetMap() {
   selected_metro = ''
   map.series[0].setData(map_data)
-  map.update({title: {text: 'Net Flows 2016'}})
+  map.update({title: {text: 'Net Flows, 2016'}})
   map.update({
     legend: {
       title: {
@@ -560,7 +557,7 @@ function netflowMap() {
   })
 
   map.series[0].setData(new_data)
-  map.update({title: {text: 'Net Flows ' + selected_year}})
+  map.update({title: {text: 'Net Flows, ' + selected_year}})
   map.update({
     legend: {
       title: {
