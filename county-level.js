@@ -6,9 +6,9 @@ https://api.highcharts.com/highmaps/
 
 
 /*~~~~~ Load external shapefiles and JCHS logo ~~~~~~*/
-counties = Highcharts.geojson(Highcharts.maps["countries/us/us-all-all"])
+counties = Highcharts.geojson(Highcharts.maps["countries/us/us-all-all-highres"])
 //counties = Highcharts.maps["countries/us/counties"]
-states = Highcharts.geojson(Highcharts.maps["countries/us/us-all-all"], 'mapline')
+states = Highcharts.geojson(Highcharts.maps["countries/us/us-all-all-highres"], 'mapline')
 logoURL =
   "http://www.jchs.harvard.edu/sites/jchs.harvard.edu/files/harvard_jchs_logo_2017.png"
 
