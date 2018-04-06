@@ -89,7 +89,7 @@ data_classes_netflow = [
 
 
 var selected_year = $('#select_year').val()
-var selected_flow = 'Inflows'
+var selected_flow = 'Netflows'
 var selected_metro = ''
 var selected_metro_name = ''
 var flow_data = {}
@@ -103,9 +103,6 @@ var API_params = "valueRenderOption=UNFORMATTED_VALUE"
 /*~~~~~~ Document ready function ~~~~~~~~~~~~~~~~~*/
 $(document).ready(function() {
   createMap()
-  getFlowData()
-  
-
   
   var SheetID = Sheet_IDs['SheetID_Netflow']
   var range = 'Netflows!A:C'
@@ -124,7 +121,6 @@ $(document).ready(function() {
 
     flow_data['Netflows'] = obj.values
     
-    selected_flow = 'Netflows'
   })
 })
 
@@ -178,6 +174,9 @@ function createMap() {
             this.renderer
               .image(logoURL, 0, this.chartHeight - 80, 289, 85) //puts logo in lower left
               .add() // (src,x,y,width,height)
+              
+            getFlowData('Inflows', '2016')
+            
           }
         }
       },
@@ -351,7 +350,7 @@ function focusMetro(GEOID, name) {
     $('#inflow_button').addClass('selectedButton')
   }
   
-  
+  if (flow_data.hasOwnProperty([selected_flow + selected_year])) {
     flow_data[selected_flow + selected_year].forEach(function (el, idx) {
       if (el[0] == GEOID) {
         new_data.push([el[1], el[2]])
@@ -397,6 +396,9 @@ function focusMetro(GEOID, name) {
         $('#noData_popover').remove() 
       }, 1300)
     }
+  } else {
+      map.showLoading('Loading data...')
+  }
 
 
   //re-select selected county
@@ -430,13 +432,14 @@ $('#select_year').change(function () {
   selected_year = $('#select_year').val()
 
   if (selected_flow != 'Netflows') {
-    var flow_load_result = getFlowData()
+    var flow_load_result = getFlowData(selected_flow, selected_year)
 
     if (selected_metro !== '' & flow_load_result === 'data already loaded') {
       focusMetro(selected_metro, selected_metro_name)
     } 
   } else {
     netflowMap()
+    getFlowData('Inflows', selected_year, false)
   }
 
 })
@@ -448,7 +451,7 @@ $('#inflow_button').click(function () {
   $('.flowButton').removeClass('selectedButton')
   $(this).addClass('selectedButton')
   
-  var flow_load_result = getFlowData()
+  var flow_load_result = getFlowData(selected_flow, selected_year)
   
   if (selected_metro !== '' & flow_load_result === 'data already loaded') {
     focusMetro(selected_metro, selected_metro_name)
@@ -463,7 +466,7 @@ $('#outflow_button').click(function () {
   $('.flowButton').removeClass('selectedButton')
   $(this).addClass('selectedButton')
   
-  var flow_load_result = getFlowData()
+  var flow_load_result = getFlowData(selected_flow, selected_year)
   
   console.log(flow_load_result)
   
@@ -486,17 +489,20 @@ $('#netflow_button').click(function () {
 })
 
 
-function getFlowData() {
-  if (!flow_data[selected_flow + selected_year]) {
+function getFlowData(flow, year, show_loading) {
+  if (!flow_data[flow + year]) {
 
-    if (typeof map !== 'undefined') {map.showLoading('Loading data...')}
-    console.log(Sheet_IDs['SheetID_' + selected_year])
+    if (typeof map !== 'undefined' & show_loading != false) {
+      map.showLoading('Loading data...')
+    }
+    
+    console.log(Sheet_IDs['SheetID_' + year])
 
-    new_range = selected_year + '%20' + selected_flow + '!A:C'
+    new_range = year + '%20' + flow + '!A:C'
     console.log(new_range)
 
     new_requestURL = baseURL 
-      + Sheet_IDs['SheetID_' + selected_year] 
+      + Sheet_IDs['SheetID_' + year] 
       + "/values/" 
       + new_range 
       + "?key=" 
@@ -504,12 +510,11 @@ function getFlowData() {
       + "&" 
       + API_params
 
-    flow_data[selected_flow + selected_year] = []
 
     $.get(new_requestURL, function(obj) {
       console.log(new_requestURL)
 
-      flow_data[selected_flow + selected_year] = obj.values
+      flow_data[flow + year] = obj.values
       
       if (selected_metro != '') {
         focusMetro(selected_metro, selected_metro_name)
