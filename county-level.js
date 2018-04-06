@@ -186,7 +186,7 @@ function createMap() {
       subtitle: {
         //use subtitle element for our table notes
         text:
-        "Notes: The IRS does not report any county pairings with fewer than ten migrants due to confidentiality concerns (this does not apply to net flows, which are outflows subtracted from inflows). Each year shown is the second year of a year pairing (e.g. 2012 represents returns matched from 2011-2012). <br/>Source: JCHS tabulations of IRS, SOI Migration Data.",
+        "Notes: The IRS does not report any county pairings with fewer than ten migrants due to confidentiality concerns (this does not apply to net flows, which are outflows subtracted from inflows). Each year shown is the second year of a year pairing (e.g. 2012 represents returns matched from 2011-2012). The 2015 data are excluded due to data quality issues that year. <br/>Source: JCHS tabulations of IRS, SOI Migration Data.",
         widthAdjust: -300,
         align: "left",
         x: 300,
