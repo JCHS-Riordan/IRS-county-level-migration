@@ -217,6 +217,7 @@ function createMap() {
         align: "right",
         verticalAlign: "middle",
         y: 110,
+        x: 10,
         backgroundColor: "rgba(255, 255, 255, 0.9)",
         labelFormatter: function() {
           if ((this.from != null) & (this.to != null)) { //legend entries w/ upper & lower bound
