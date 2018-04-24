@@ -190,7 +190,7 @@ function createMap() {
         widthAdjust: -300,
         align: "left",
         x: 300,
-        y: -50, //may have to change this, depending on length of notes
+        y: -50, //may have to change this, depending on lenght of notes
         verticalAlign: "bottom",
         style: {
           color: "#999999",
@@ -397,8 +397,11 @@ function focusMetro(GEOID, name) {
     })
 
   } else {
-
-    map.series[0].setData([])
+    var null_data = []
+    map_data.forEach(function (el, idx) {
+      null_data.push([el.fips, null])
+    })
+    map.series[0].setData(null_data)
     map.renderer.label('There are no data for this county',270,270,'callout',10,10)
       .css({
       color: '#FFFFFF'
@@ -421,21 +424,13 @@ function focusMetro(GEOID, name) {
     }, 1300)
   }
 
-
-  //re-select selected county
-  map.series[0].data.forEach(function(pt) {
-    if (pt.options.fips == GEOID) {
-      map.series[0].data[pt.index].select()
-    }
-  })
-
   //add button to clear the selection
   if (!$('#clear_button').length) {
     map.renderer.button('Clear selection',450,450)
       .attr({
       padding: 7,
       id: 'clear_button'
-    })
+      })
       .add()
 
     $('#clear_button').click(function () { 
