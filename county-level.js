@@ -186,11 +186,11 @@ function createMap() {
       subtitle: {
         //use subtitle element for our table notes
         text:
-        "Notes: The IRS does not report any county pairings with fewer than ten migrants due to confidentiality concerns (this does not apply to net flows, which are outflows subtracted from inflows). Each year shown is the second year of a year pairing (e.g. 2012 represents returns matched from 2011-2012). <br/>Source: JCHS tabulations of IRS, SOI Migration Data.",
+        "Notes: The IRS does not report any county pairings with fewer than ten migrants due to confidentiality concerns (this does not apply to net flows, which are outflows subtracted from inflows). Each year shown is the second year of a year pairing (e.g. 2012 represents returns matched from 2011-2012). The 2015 data are excluded due to data quality issues that year. <br/>Source: JCHS tabulations of IRS, SOI Migration Data.",
         widthAdjust: -300,
         align: "left",
         x: 300,
-        y: -50, //may have to change this, depending on lenght of notes
+        y: -50, //may have to change this, depending on length of notes
         verticalAlign: "bottom",
         style: {
           color: "#999999",
@@ -217,6 +217,7 @@ function createMap() {
         align: "right",
         verticalAlign: "middle",
         y: 110,
+        x: 10,
         backgroundColor: "rgba(255, 255, 255, 0.9)",
         labelFormatter: function() {
           if ((this.from != null) & (this.to != null)) { //legend entries w/ upper & lower bound
@@ -341,63 +342,83 @@ function createMap() {
 function focusMetro(GEOID, name) {
 
   console.log(GEOID + ' ' + name)
-  
-  var new_data = []
-  
+
   if (selected_flow === 'Netflows') {
     selected_flow = 'Inflows'
     $('.flowButton').removeClass('selectedButton')
     $('#inflow_button').addClass('selectedButton')
   }
+
+  var new_data = []
+  var dest_counties_data = {}
   
-  if (flow_data.hasOwnProperty([selected_flow + selected_year])) {
-    flow_data[selected_flow + selected_year].forEach(function (el, idx) {
-      if (el[0] == GEOID) {
-        new_data.push([el[1], el[2]])
-      } 
+  //pull out single-county flow data from flow-year sheet
+  flow_data[selected_flow + selected_year].forEach(function (el) {
+    if (el[0] == GEOID) {
+      dest_counties_data[el[1]] = el[2]
+    } 
+  })
+
+  //create data object equal in length to full map data
+  map_data.forEach(function (x) {
+    if ( dest_counties_data.hasOwnProperty(x.fips)) {
+      new_data.push(
+        {
+          fips: x.fips,
+          value: dest_counties_data[x.fips]
+        }
+      )
+    } else {
+      new_data.push(
+        {
+          fips: x.fips,
+          value: null
+        }
+      )
+    }
+  })
+
+  if (!$.isEmptyObject(dest_counties_data)) {
+    map.series[0].setData(new_data)
+    map.update({
+      title: {
+        text: name + ' County<br/>' + selected_flow + ', ' + selected_year
+      }
+    })
+    map.update({
+      legend: {
+        title: {
+          text: 'Number of <br> domestic migrants'
+        }
+      },
+      colorAxis: {
+        dataClasses: data_classes_inflow_outflow
+      }
     })
 
-    if (new_data.length > 0) {
-
-      map.series[0].setData(new_data)
-      map.update({title: {text: name + ' County<br/>' + selected_flow + ', ' + selected_year}})
-      map.update({
-        legend: {
-          title: {
-            text: 'Number of <br> domestic migrants'
-          }
-        },
-        colorAxis: {
-          dataClasses: data_classes_inflow_outflow
-        }
-      })
-
-    } else {
-      
-      map.series[0].setData([])
-      map.renderer.label('There are no data for this county',270,270,'callout',10,10)
-        .css({
-          color: '#FFFFFF'
-        })
-        .attr({
-          fill: 'rgba(0, 0, 0, 0.75)',
-          padding: 8,
-          r: 5,
-          zIndex: 6,
-          id: 'noData_popover'
-        })
-        .add()
-
-      setTimeout(function() {
-        $('#noData_popover').fadeOut('fast') 
-      }, 1000)
-      
-      setTimeout(function() { 
-        $('#noData_popover').remove() 
-      }, 1300)
-    }
   } else {
-      map.showLoading('Loading data...')
+
+    map.series[0].setData([])
+    map.renderer.label('There are no data for this county',270,270,'callout',10,10)
+      .css({
+      color: '#FFFFFF'
+    })
+      .attr({
+      fill: 'rgba(0, 0, 0, 0.75)',
+      padding: 8,
+      r: 5,
+      zIndex: 6,
+      id: 'noData_popover'
+    })
+      .add()
+
+    setTimeout(function() {
+      $('#noData_popover').fadeOut('fast') 
+    }, 1000)
+
+    setTimeout(function() { 
+      $('#noData_popover').remove() 
+    }, 1300)
   }
 
 
@@ -424,7 +445,7 @@ function focusMetro(GEOID, name) {
       $('#clear_button').remove()
     })
   }
-  
+
 }//end focusMetro()
 
 
