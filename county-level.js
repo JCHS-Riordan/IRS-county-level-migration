@@ -342,72 +342,87 @@ function createMap() {
 function focusMetro(GEOID, name) {
 
   console.log(GEOID + ' ' + name)
-  
-  var new_data = []
-  
+
   if (selected_flow === 'Netflows') {
     selected_flow = 'Inflows'
     $('.flowButton').removeClass('selectedButton')
     $('#inflow_button').addClass('selectedButton')
   }
+
+  var new_data = []
+  var dest_counties_data = {}
   
-  if (flow_data.hasOwnProperty([selected_flow + selected_year])) {
-    flow_data[selected_flow + selected_year].forEach(function (el, idx) {
-      if (el[0] == GEOID) {
-        new_data.push([el[1], el[2]])
-      } 
-    })
+  //pull out single-county flow data from flow-year sheet
+  flow_data[selected_flow + selected_year].forEach(function (el) {
+    if (el[0] == GEOID) {
+      dest_counties_data[el[1]] = el[2]
+    } 
+  })
 
-    if (new_data.length > 0) {
-
-      map.series[0].setData(new_data)
-      map.update({title: {text: name + ' County<br/>' + selected_flow + ', ' + selected_year}})
-      map.update({
-        legend: {
-          title: {
-            text: 'Number of <br> domestic migrants'
-          }
-        },
-        colorAxis: {
-          dataClasses: data_classes_inflow_outflow
+  //create data object equal in length to full map data
+  map_data.forEach(function (x) {
+    if ( dest_counties_data.hasOwnProperty(x.fips)) {
+      new_data.push(
+        {
+          fips: x.fips,
+          value: dest_counties_data[x.fips]
         }
-      })
-
+      )
     } else {
-      
-      map.series[0].setData([])
-      map.renderer.label('There are no data for this county',270,270,'callout',10,10)
-        .css({
-          color: '#FFFFFF'
-        })
-        .attr({
-          fill: 'rgba(0, 0, 0, 0.75)',
-          padding: 8,
-          r: 5,
-          zIndex: 6,
-          id: 'noData_popover'
-        })
-        .add()
-
-      setTimeout(function() {
-        $('#noData_popover').fadeOut('fast') 
-      }, 1000)
-      
-      setTimeout(function() { 
-        $('#noData_popover').remove() 
-      }, 1300)
-    }
-  } else {
-      map.showLoading('Loading data...')
-  }
-
-
-  //re-select selected county
-  map.series[0].data.forEach(function(pt) {
-    if (pt.options.fips == GEOID) {
-      map.series[0].data[pt.index].select()
+      new_data.push(
+        {
+          fips: x.fips,
+          value: null
+        }
+      )
     }
   })
+
+  if (!$.isEmptyObject(dest_counties_data)) {
+    map.series[0].setData(new_data)
+    map.update({
+      title: {
+        text: name + ' County<br/>' + selected_flow + ', ' + selected_year
+      }
+    })
+    map.update({
+      legend: {
+        title: {
+          text: 'Number of <br> domestic migrants'
+        }
+      },
+      colorAxis: {
+        dataClasses: data_classes_inflow_outflow
+      }
+    })
+
+  } else {
+    var null_data = []
+    map_data.forEach(function (el, idx) {
+      null_data.push([el.fips, null])
+    })
+    map.series[0].setData(null_data)
+    map.renderer.label('There are no data for this county',270,270,'callout',10,10)
+      .css({
+      color: '#FFFFFF'
+    })
+      .attr({
+      fill: 'rgba(0, 0, 0, 0.75)',
+      padding: 8,
+      r: 5,
+      zIndex: 6,
+      id: 'noData_popover'
+    })
+      .add()
+
+    setTimeout(function() {
+      $('#noData_popover').fadeOut('fast') 
+    }, 1000)
+
+    setTimeout(function() { 
+      $('#noData_popover').remove() 
+    }, 1300)
+  }
 
   //add button to clear the selection
   if (!$('#clear_button').length) {
@@ -415,7 +430,7 @@ function focusMetro(GEOID, name) {
       .attr({
       padding: 7,
       id: 'clear_button'
-    })
+      })
       .add()
 
     $('#clear_button').click(function () { 
@@ -425,7 +440,7 @@ function focusMetro(GEOID, name) {
       $('#clear_button').remove()
     })
   }
-  
+
 }//end focusMetro()
 
 
